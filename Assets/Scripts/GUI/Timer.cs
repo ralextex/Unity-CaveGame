@@ -51,10 +51,11 @@ public class Timer : MonoBehaviour
     }
 
     /**
-        * @brief if finnished 
+    * @brief if finnished 
     */
     public void Finnish()
     {
+        TimerEnd.Instance.timetext = timerText;
         finnished = true;
         timerText.color = Color.yellow;
     }

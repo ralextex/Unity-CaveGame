@@ -14,7 +14,7 @@ using static WorleyNoise;
 */
 public class CaveGeneration : MonoBehaviour
 {	
-	// width, lenght and height of marching cube 
+	// width, length and height of marching cube 
     public int width, length, height; 
 	// resolution
 	public int res;
@@ -29,7 +29,7 @@ public class CaveGeneration : MonoBehaviour
 	// List of int, triangles needed to create Mesh
 	List<int> triangles = new List<int>();
 	// How full the cave space should be
-	[Range(400, 600)] public float fill = 500; 
+	[Range(0, 600)] public float fill = 500; 
 	// Configuration for the look-up table
 	int[,,] cubeConfiguration;
 	// corner point densities
@@ -49,6 +49,9 @@ public class CaveGeneration : MonoBehaviour
 	// Only for Debug: feature points, start/end point  
 	public Vector3[] dbg_fPoint;
 	public Vector3 dbg_start, dbg_end;
+
+	public Material material = null;
+	List<Color> colors = new List<Color>();
 	
 	private void Start()
 	{
@@ -85,7 +88,9 @@ public class CaveGeneration : MonoBehaviour
 		mesh = new Mesh();
 		mesh.vertices = verticies.ToArray();
 		mesh.triangles = triangles.ToArray();
+		mesh.colors = colors.ToArray();
 		mesh.RecalculateNormals();
+		mesh.RecalculateTangents();
 		GetComponent<MeshFilter>().mesh = mesh;
 		meshCol = gameObject.AddComponent(typeof(MeshCollider)) as MeshCollider;
 		meshCol.sharedMesh = mesh;
@@ -101,7 +106,7 @@ public class CaveGeneration : MonoBehaviour
 			for (int y = 0; y < height + 2; y++)
 			{
 				for (int z = 0; z < length + 2; z++)
-				{
+				{	
 					// Outer mantel
 					if(x == 0 || x == width + 1 || y == 0 || y == height + 1 || z == 0 || z == length + 1)
 					{
@@ -134,7 +139,6 @@ public class CaveGeneration : MonoBehaviour
 			}
 		}
 	}
-
 	/**
     * @brief Creates Start and Exit 
 	* @return generation succesfull flag  
@@ -206,9 +210,9 @@ public class CaveGeneration : MonoBehaviour
 	{
 		for (int x = 0; x < width + 1; x++)
         {
-			for (int y = 0; y < height + 1; y++)
+			for (int z = 0; z < length + 1; z++)
             {
-				for (int z = 0; z < length + 1; z++)
+				for (int y = 0; y < height + 1; y++)
                 {
 					
 					// calculate configuration from density
@@ -223,13 +227,14 @@ public class CaveGeneration : MonoBehaviour
                     (binDensities[x, y, z + 1]);
 
 					// Create Edgepoints between verticies
+					float d = 0.5f;
 					Vector3[] edgePoints = new Vector3[]{
-						new Vector3(x, y - 0.5f, z + 0.5f) * res, new Vector3(x + 0.5f, y - 0.5f, z) * res,
-						new Vector3(x, y - 0.5f, z - 0.5f) * res, new Vector3(x - 0.5f, y - 0.5f, z) * res,
-						new Vector3(x, y + 0.5f, z + 0.5f) * res, new Vector3(x + 0.5f, y + 0.5f, z) * res,
-						new Vector3(x, y + 0.5f, z - 0.5f) * res, new Vector3(x - 0.5f, y + 0.5f, z) * res,
-						new Vector3(x - 0.5f, y, z + 0.5f) * res, new Vector3(x + 0.5f, y, z + 0.5f) * res,
-						new Vector3(x + 0.5f, y, z - 0.5f) * res, new Vector3(x - 0.5f, y, z - 0.5f) * res};
+						new Vector3(x, y - d, z + d) * res, new Vector3(x + d, y - d, z) * res,
+						new Vector3(x, y - d, z - d) * res, new Vector3(x - d, y - d, z) * res,
+						new Vector3(x, y + d, z + d) * res, new Vector3(x + d, y + d, z) * res,
+						new Vector3(x, y + d, z - d) * res, new Vector3(x - d, y + d, z) * res,
+						new Vector3(x - d, y, z + d) * res, new Vector3(x + d, y, z + d) * res,
+						new Vector3(x + d, y, z - d) * res, new Vector3(x - d, y, z - d) * res};
 
                     for (int i = 1; i < 5; i++)
                     {
@@ -262,6 +267,9 @@ public class CaveGeneration : MonoBehaviour
 							verticies.Add(a); 
                             verticies.Add(b); 
                             verticies.Add(c);
+							colors.Add(new Color(.054f, .054f, .054f));
+							colors.Add(new Color(.108f, .108f, .108f));
+							colors.Add(new Color(.162f, .162f, .162f));
 						}
 					}
                 }
@@ -269,7 +277,8 @@ public class CaveGeneration : MonoBehaviour
 		}
 	}
 
-	private void OnDrawGizmos() {
+	private void OnDrawGizmos() 
+	{
         foreach (Vector3 item in dbg_fPoint)
         {
 			Gizmos.color = Color.red;

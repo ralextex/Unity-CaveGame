@@ -8,12 +8,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /**
     * @brief creates the Game over screen
 */
 public class GameOver : MonoBehaviour
-{
+{   
+    //
+    public Text endTimer;
+
+    public void Start()
+    {
+        endTimer.text = TimerEnd.Instance.timetext.text;
+    }
+
     /**
     * @brief when button pressed load game
     */
